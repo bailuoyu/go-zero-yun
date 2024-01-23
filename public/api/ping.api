@@ -1,0 +1,12 @@
+syntax = "v1"
+
+import ("base.api")
+
+@server(
+    group : base
+)
+service greet-api {
+    @doc "保活接口"
+    @handler PingHandler
+    get /ping (Empty) returns (Empty)
+}

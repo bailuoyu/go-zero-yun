@@ -1,0 +1,19 @@
+syntax = "v1"
+
+type (
+    Empty{}
+)
+
+type (
+    PageReq {
+        Page int `form:"page"`         //页码
+        PageSize int `form:"page_size"`//每页条数
+    }
+
+    Pager {
+        Page int `json:"page"`           //页码
+        PageSize int `json:"page_size"`  //每页条数
+        PageCount int `json:"page_count"`//总页数
+        Total int `json:"total"`         //总条数
+    }
+)

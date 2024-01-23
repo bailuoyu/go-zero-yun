@@ -1,0 +1,32 @@
+syntax = "v1"
+
+import (
+    "base.api"
+)
+
+type (
+    RefreshTokenRsp {
+        AccessToken string `json:"access_token"`
+        AccessExpire int64 `json:"access_expire"`
+        RefreshAfter int64 `json:"refresh_after"` // 建议客户端刷新token的绝对时间
+    }
+)
+
+@server (
+    group : jwt
+    prefix : /web/jwt
+    jwt: Pkg.Jwt
+//    jwtTransition: Pkg.Jwt
+    middleware: AuthMiddleware
+)
+service greet-api {
+
+    @doc "刷新token"
+    @handler RefreshTokenHandler
+    post /refresh_token (Empty) returns (RefreshTokenRsp)
+
+    @handler GetHandler
+    get /get(Empty) returns (Empty)
+
+}
+

@@ -1,0 +1,60 @@
+syntax = "v1"
+
+import (
+    "base.api"
+)
+
+info(
+    title : "用户模块"
+)
+
+type (
+    UserLoginReq {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+    UserLoginRsp {
+        AccessToken string `json:"access_token"`
+        AccessExpire int `json:"access_expire"`
+        RefreshAfter int `json:"refresh_after"` // 建议客户端刷新token的绝对时间
+    }
+)
+
+type (
+    UserInfoReq {
+        Name string `from:"name"`
+    }
+    UserInfoRsp {
+        Message string `json:"message"` //返回信息
+    }
+)
+
+type (
+    UserListRsp {
+        Pager Pager `json:"pager"`
+        List []UserListRspInfo `json:"list"`
+    }
+    UserListRspInfo {
+        Name string `json:"name"`
+        Age string `json:"age"`
+        Remark string `json:"remark"`
+    }
+)
+
+@server(
+    group : user    //用户模块
+    prefix : /web/user
+)
+service greet-api {
+    @doc "用户登录"
+    @handler LoginHandler
+    post /login (UserLoginReq) returns (UserLoginRsp)
+
+    @doc "用户信息"
+    @handler InfoHandler
+    get /info (UserInfoReq) returns (UserInfoRsp)
+
+    @doc "用户列表"
+    @handler ListHandler
+    get /list (PageReq) returns (UserListRsp)
+}

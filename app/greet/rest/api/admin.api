@@ -1,0 +1,12 @@
+syntax = "v1"
+
+import ("base.api")
+
+@server (
+    group : admin
+    prefix : /web/admin
+)
+service greet-api {
+    @handler InfoHandler
+    get /info(Empty) returns (Empty)
+}

@@ -1,0 +1,9 @@
+syntax = "v1"
+
+import (
+	"api/ping.api"
+	"api/admin.api"
+	"api/jwt.api"
+	"api/test.api"
+	"api/user.api"
+)

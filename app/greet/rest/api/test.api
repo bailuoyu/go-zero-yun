@@ -1,0 +1,101 @@
+syntax = "v1"
+
+import (
+    "base.api"
+)
+
+type (
+    TestGetReq {
+        Id int `form:"id"`
+    }
+    TestGetRsp {
+        Id int `json:"id"`
+        Phone string `json:"phone"`
+        NickName string `json:"name"`
+    }
+)
+
+type (
+    TestAddReq {
+        PageReq
+        Name string `json:"name"`
+        Age int `json:"age,optional"`
+    }
+)
+
+type (
+    TestElasticGetReq {
+        Id string `form:"id"`
+    }
+    TestElasticGetRsp {
+        Time string `json:"time"`
+        Trace string `json:"trace"`
+        Span string `json:"span"`
+        Route string `json:"route"`
+        UserId int `json:"user_id"`
+        Level string `json:"level"`
+        Type string `json:"type"`
+        Runtime float64 `json:"runtime"`
+        Content string `json:"content"`
+        Caller string `json:"caller"`
+    }
+)
+
+type (
+    TestWxWorkAppChatCreateReq {
+        Name string `json:"name"`
+        Owner string `json:"owner"`
+        Userlist []string `json:"userlist"`
+        Chatid string `json:"chatid,optional"`
+    }
+    TestWxWorkAppChatCreateRsp {
+        Chatid string `json:"chatid"`
+    }
+)
+
+@server(
+    group : test
+    prefix : /web/test
+    middleware: TestMiddleware
+)
+service greet-api {
+    @doc "测试get"
+    @handler GetHandler
+    get /get (TestGetReq) returns (TestGetRsp)
+
+    @doc "测试add"
+    @handler AddHandler
+    post /add (TestAddReq) returns (Empty)
+
+    @doc "测试redis"
+    @handler RedisHandler
+    get /redis (Empty) returns (Empty)
+
+    @doc "测试redis"
+    @handler MongoHandler
+    get /mongo (Empty) returns (Empty)
+
+    @doc "测试kafka"
+    @handler KafkaHandler
+    get /kafka (Empty) returns (Empty)
+
+    @doc "测试elastic获取"
+    @handler ElasticGetHandler
+    get /elastic_get (TestElasticGetReq) returns (TestElasticGetRsp)
+
+    @doc "测试elastic添加"
+    @handler ElasticAddHandler
+    post /elastic_add (Empty) returns (Empty)
+
+    @doc "测试cos"
+    @handler CosHandler
+    get /cos (Empty) returns (Empty)
+
+    @doc "测试企业微信创建群组"
+    @handler WxWorkAppChatCreateHandler
+    post /wx_work/app_chat_create (TestWxWorkAppChatCreateReq) returns (TestWxWorkAppChatCreateRsp)
+
+    @doc "测试企业微信发送消息"
+    @handler WxWorkAppChatSendHandler
+    post /wx_work/app_chat_send (Empty) returns (Empty)
+}
