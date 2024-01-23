@@ -66,16 +66,6 @@ db-core:
 	@cd ${MODELDIR}/db/core; \
 	sh autoxorm.sh ${table}
 
-### db-admin:		生成model文件(e.g. make db-admin table=demo)
-.PHONY: db-admin
-db-admin:
-	@if [[ "${table}" == "" ]]; then \
-		echo "table is empty, you should set!"; \
-		exit 1; \
-	fi;
-	@cd ${MODELDIR}/db/admin; \
-	sh autoxorm.sh ${table}
-
 ### db-data:		生成model文件(e.g. make db-data table=demo)
 .PHONY: db-data
 db-data:
@@ -94,14 +84,4 @@ mon-core:
 		exit 1; \
 	fi;
 	@cd ${MODELDIR}/mongo/core; \
-	goctl model mongo -t ${type} -e true
-
-### mon-admin:		生成MongoDB model文件(e.g. make mon-admin type=Demo)
-.PHONY: mon-admin
-mon-admin:
-	@if [[ "${type}" == "" ]]; then \
-		echo "col is empty, you should set!"; \
-		exit 1; \
-	fi;
-	@cd ${MODELDIR}/mongo/admin; \
 	goctl model mongo -t ${type} -e true
