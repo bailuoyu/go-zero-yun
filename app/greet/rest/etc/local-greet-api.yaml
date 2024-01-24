@@ -1,0 +1,95 @@
+Global:
+  Namespace: Development
+  EnvName: local
+
+Server:
+  App: greet
+  Rest:
+    Name: greet-api
+    Host: 0.0.0.0
+    Port: 3000
+    Middlewares:
+      Log: false
+      Prometheus: false
+      Shedding: false
+      Metrics: false
+    Log:
+      Mode: file
+      Path: ./log
+      Level: info
+      KeepDays: 7
+      MaxBackups: 5
+      MaxSize: 128
+      Rotation: size
+
+Client:
+  Mysql:
+    - Name: core
+      Dsn: user:password@tcp(127.0.0.1:3306)/core?charset=utf8mb4&parseTime=true&loc=Local&timeout=5s   #内网
+      MaxIdleConns: 10
+      MaxOpenConns: 100
+      ShowSql: true
+      LogLevel: debug
+    - Name: data
+      Dsn: user:password@tcp(127.0.0.1:3306)/data?charset=utf8mb4&parseTime=true&loc=Local&timeout=5s   #内网
+      MaxIdleConns: 10
+      MaxOpenConns: 100
+      ShowSql: true
+      LogLevel: debug
+  Redis:
+    - Name: core
+      Host: 127.0.0.1:6379   #内网
+      Pass: password
+      Db: 0
+    - Name: data
+      Host: 127.0.0.1:6379   #内网
+      Pass: password
+      Db: 0
+  Mongo:
+    - Name: core
+      Uri: mongodb://user:password@127.0.0.1:27017/admin?connect=direct   #内网
+      Db: core
+      MinPoolSize: 10
+      MaxPoolSize: 100
+  Kafka:
+    - Name: core
+      Brokers: [ "127.0.0.1:9092" ]  #内网
+      Sasl:
+        Name: SASL_SCRAM_SHA_256
+        Username: user
+        Password: password
+      GroupId: go-zero
+  Rabbitmq:
+    - Name: core
+      Url: "amqp://user:password@127.0.0.1:5672/"  #内网
+  Elastic:
+    - Name: core
+      Urls: [ "http://192.168.168.31:9200" ] #内网
+      Username: elastic
+      Password: password
+      Sniff: false
+
+Pkg:
+  Jwt:
+    AccessSecret: YourAccessSecret
+    AccessExpire: 86400
+  Sts:
+    Host: sts.tencentcloudapi.com  #内网地址sts.internal.tencentcloudapi.com
+  WxWork:
+    AppChat:
+      WarningId: YourWarningId
+
+#Plugin:
+#  WxWork:
+#    Default:
+#      CorpId: YourCorpId
+#      AgentId: YourAgentId
+#      Secret: YourSecret
+#  Cos:
+#    Default:
+#      AppId: YourAppId
+#      SecretId: YourSecretId
+#      SecretKey: YourSecretKey
+#      Region: YourRegion
+#      Bucket: YourBucket
+#      CdnDomain: YourCdnDomain
