@@ -40,4 +40,6 @@ func CloseClient() {
 	closeXorm()
 	closeRedis()
 	closeMongo()
+	closeKafka()
+	closeRabbitmq()
 }

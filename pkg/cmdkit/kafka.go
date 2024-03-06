@@ -15,48 +15,62 @@ import (
 
 // initKafka 初始化kafka
 func initKafka(check bool) {
-	pconf.ClientCfg.Kafka = make(map[string]pconf.KafkaCfg)
+	pconf.ClientCfg.Kafka = make(map[string]*pconf.ClientKafkaConfig)
 	for _, v := range pconf.Cfg.Client.Kafka {
-		pconf.ClientCfg.Kafka[v.Name] = v
+		pconf.ClientCfg.Kafka[v.Name] = &pconf.ClientKafkaConfig{
+			KafkaCfg: v,
+		}
 		if check && !IsEnvLocal() { //检查连接
-			KafkaConnect(v)
+			err := KafkaConnect(v)
+			if err != nil {
+				panic(errors.New(fmt.Sprintf("kafka fatal %s, name: %s", err.Error(), v.Name)))
+			}
+		}
+	}
+}
+
+// 关闭kafka
+func closeKafka() {
+	for _, v := range pconf.ClientCfg.Kafka {
+		for _, w := range v.Writers {
+			_ = w.Writer.Close()
 		}
 	}
 }
 
 // KafkaConnect 检查连接是否可用
-func KafkaConnect(v pconf.KafkaCfg) {
+func KafkaConnect(v pconf.KafkaCfg) error {
 	var dialer kafka.Dialer
 	mechanism, err := getSASLMechanism(v)
 	if err == nil {
 		dialer.SASLMechanism = mechanism
 	}
 	conn, err := dialer.Dial("tcp", v.Brokers[0])
-	defer conn.Close()
-	if err != nil {
-		panic(errors.New(fmt.Sprintf("kafka fatal %s, name: %s", err.Error(), v.Name)))
-	}
+	defer func() {
+		_ = conn.Close()
+	}()
+	return err
 }
 
 // KafkaWriter kafka生产者
-func KafkaWriter(v pconf.KafkaCfg, topic string) *kafka.Writer {
-	w := &kafka.Writer{
+func KafkaWriter(v *pconf.ClientKafkaConfig, topic string) *kafka.Writer {
+	v.Writers[topic].Writer = &kafka.Writer{
 		Addr:         kafka.TCP(v.Brokers...),
 		Topic:        topic,
 		RequiredAcks: kafka.RequireOne, //平衡为1,高性能为0,高安全为-1
 		BatchTimeout: 10 * time.Millisecond,
 	}
-	mechanism, err := getSASLMechanism(v)
+	mechanism, err := getSASLMechanism(v.KafkaCfg)
 	if err != nil {
-		return w
+		return v.Writers[topic].Writer
 	}
 	if mechanism == nil {
-		return w
+		return v.Writers[topic].Writer
 	}
-	w.Transport = &kafka.Transport{
+	v.Writers[topic].Writer.Transport = &kafka.Transport{
 		SASL: mechanism,
 	}
-	return w
+	return v.Writers[topic].Writer
 }
 
 // KafkaReader 获取kafka消费者

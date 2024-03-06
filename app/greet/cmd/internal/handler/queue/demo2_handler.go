@@ -18,9 +18,8 @@ func Demo2ProduceHandler(cmd *cobra.Command, args []string) {
 	//cancel := cmdkit.CmdWithCancel(cmd)
 	//go signalkit.CmdElegantExit(cmd, cancel, 5*time.Second)
 	// 生产者
-	client := rabbitmqlgc.Core()
-	producer := rabbitmqlgc.GetProducer(cmd.Context(), client, quem.Log{})
-	defer producer.Close()
+	channel := rabbitmqlgc.Core(false)
+	producer := rabbitmqlgc.GetProducer(cmd.Context(), channel, quem.Log{})
 	for {
 		select {
 		case <-cmd.Context().Done():
@@ -70,8 +69,8 @@ func Demo2ConsumeHandler(cmd *cobra.Command, args []string) {
 	//cancel := cmdkit.CmdWithCancel(cmd)
 	//go signalkit.CmdElegantExit(cmd, cancel, 5*time.Second)
 	// 消费者
-	client := rabbitmqlgc.Core()
-	consumer := rabbitmqlgc.GetConsumer(cmd.Context(), client, quem.Log{}, demo2Handle)
+	channel := rabbitmqlgc.Core(false)
+	consumer := rabbitmqlgc.GetConsumer(cmd.Context(), channel, quem.Log{}, demo2Handle)
 	err := consumer.Run()
 	fmt.Printf("err: %v", err.Error())
 }

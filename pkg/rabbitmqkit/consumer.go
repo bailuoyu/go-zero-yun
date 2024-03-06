@@ -21,7 +21,7 @@ const (
 
 // Consumer 消费者
 type Consumer struct {
-	Client
+	Channel       *amqp.Channel
 	Handle        func(ctx context.Context, msg amqp.Delivery) error // bool为标明是否需要重试
 	Queue         string
 	NoWait        bool
@@ -31,35 +31,8 @@ type Consumer struct {
 	Ctx           context.Context
 }
 
-// Close 关闭生产者
-func (cns *Consumer) Close() {
-	// 计时
-	timer := utils.NewElapsedTimer()
-	err1 := cns.CloseChannel()
-	runtime1 := funckit.DurToMic2(timer.Duration())
-	if err1 != nil {
-		logkit.WithType(logkit.LogKafkaRead).WithRuntime(runtime1).Errorf(cns.Ctx, "reader close err: %s", err1.Error())
-		fmt.Printf("reader close err: %s,time:%g ms \n", err1.Error(), runtime1)
-	}
-	err2 := cns.CloseCon()
-	runtime2 := funckit.DurToMic2(timer.Duration())
-	if err2 != nil {
-		logkit.WithType(logkit.LogKafkaRead).WithRuntime(runtime2).Errorf(cns.Ctx, "reader close err: %s", err2.Error())
-		fmt.Printf("reader close err: %s,time:%g ms \n", err2.Error(), runtime2)
-	}
-	if err1 == nil && err2 == nil {
-		logkit.WithType(logkit.LogKafkaRead).WithRuntime(runtime2).Infof(cns.Ctx, "reader close success")
-		fmt.Printf("reader close success,time:%g ms \n", runtime2)
-	}
-}
-
-// CloseCon 关闭连接
-func (cns *Consumer) CloseCon() error {
-	return cns.Con.Close()
-}
-
-// CloseChannel 关闭通道
-func (cns *Consumer) CloseChannel() error {
+// Close 关闭连接
+func (cns *Consumer) Close() error {
 	return cns.Channel.Close()
 }
 
@@ -83,7 +56,9 @@ func (cns *Consumer) Run() error {
 		trace = funckit.RandomStr(24, 1)
 	}
 	// 结束后关闭消费者
-	defer cns.Close()
+	defer func() {
+		_ = cns.Close()
+	}()
 	consumerTag := funckit.RandomStr(8, 1)
 	msgc, err := cns.Channel.Consume(cns.Queue, consumerTag, false, false, false, cns.NoWait, nil)
 	if err != nil {

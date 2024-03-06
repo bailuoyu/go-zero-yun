@@ -2,14 +2,15 @@ package rabbitmqlgc
 
 import (
 	"context"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"go-zero-yun/pkg/rabbitmqkit"
 )
 
 // GetProducer 获取生产者
-func GetProducer(ctx context.Context, client rabbitmqkit.Client, model interface{}) rabbitmqkit.Producer {
+func GetProducer(ctx context.Context, channel *amqp.Channel, model interface{}) rabbitmqkit.Producer {
 	producer := rabbitmqkit.Producer{
-		Client: client,
-		Ctx:    ctx,
+		Channel: channel,
+		Ctx:     ctx,
 	}
 	if model == nil {
 		return producer

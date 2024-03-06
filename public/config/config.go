@@ -34,7 +34,7 @@ type ClientConfig struct {
 	Mysql    map[string]*ClientMysqlConfig
 	Redis    map[string]*ClientRedisConfig
 	Mongo    map[string]*ClientMongoConfig
-	Kafka    map[string]KafkaCfg
-	Rabbitmq map[string]RabbitmqCfg
+	Kafka    map[string]*ClientKafkaConfig
+	Rabbitmq map[string]*ClientRabbitmqConfig
 	Elastic  map[string]*ClientElasticConfig
 }

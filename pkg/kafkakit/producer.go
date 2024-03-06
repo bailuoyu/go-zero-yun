@@ -13,10 +13,10 @@ type Producer struct {
 	Ctx    context.Context
 }
 
-// Close 关闭生产者
-func (prd *Producer) Close() error {
-	return prd.Writer.Close()
-}
+// Close 关闭生产者,生产者无需关闭
+//func (prd *Producer) Close() error {
+//	return prd.Writer.Close()
+//}
 
 // Push 推送消息
 func (prd *Producer) Push(msgs ...kafka.Message) error {

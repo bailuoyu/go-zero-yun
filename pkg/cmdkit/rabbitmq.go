@@ -9,11 +9,13 @@ import (
 
 // initRabbitmq 初始化rabbitmq
 func initRabbitmq(check bool) {
-	pconf.ClientCfg.Rabbitmq = make(map[string]pconf.RabbitmqCfg)
+	pconf.ClientCfg.Rabbitmq = make(map[string]*pconf.ClientRabbitmqConfig)
 	for _, v := range pconf.Cfg.Client.Rabbitmq {
-		pconf.ClientCfg.Rabbitmq[v.Name] = v
+		pconf.ClientCfg.Rabbitmq[v.Name] = &pconf.ClientRabbitmqConfig{
+			RabbitmqCfg: v,
+		}
 		if check && !IsEnvLocal() { //检查连接
-			err := RabbitmqConnect(v)
+			_, err := RabbitmqConnect(pconf.ClientCfg.Rabbitmq[v.Name])
 			if err != nil {
 				panic(errors.New(fmt.Sprintf("rabbitmq fatal %s, name: %s", err.Error(), v.Name)))
 			}
@@ -21,24 +23,36 @@ func initRabbitmq(check bool) {
 	}
 }
 
+// 关闭Rabbitmq
+func closeRabbitmq() {
+	for _, v := range pconf.ClientCfg.Rabbitmq {
+		if v.Connection != nil {
+			_ = v.Connection.Close()
+		}
+	}
+}
+
 // RabbitmqConnect 检查连接是否可用
-func RabbitmqConnect(v pconf.RabbitmqCfg) error {
+func RabbitmqConnect(v *pconf.ClientRabbitmqConfig) (*amqp.Connection, error) {
 	conn, err := amqp.Dial(v.Url)
 	if conn != nil {
-		defer conn.Close()
+		v.Connection = conn
 	}
-	return err
+	return conn, err
 }
 
 // RabbitmqChannel rabbitmq通道
-func RabbitmqChannel(v pconf.RabbitmqCfg) (*amqp.Connection, *amqp.Channel, error) {
-	conn, err := amqp.Dial(v.Url)
-	if err != nil {
-		return nil, nil, err
+func RabbitmqChannel(v *pconf.ClientRabbitmqConfig) (*amqp.Channel, error) {
+	if v.Connection == nil {
+		conn, err := amqp.Dial(v.Url)
+		if err != nil {
+			return nil, err
+		}
+		v.Connection = conn
 	}
-	channel, err := conn.Channel()
+	channel, err := v.Connection.Channel()
 	if err != nil {
-		return conn, nil, err
+		return nil, err
 	}
-	return conn, channel, nil
+	return channel, nil
 }

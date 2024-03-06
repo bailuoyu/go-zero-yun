@@ -22,7 +22,17 @@ func GetWriter(name string, model kafkakit.Model) *kafka.Writer {
 	if model != nil {
 		topic = model.TopicName()
 	}
-	return cmdkit.KafkaWriter(conf.ClientCfg.Kafka[name], topic)
+	if conf.ClientCfg.Kafka[name].Writers[topic].Writer != nil {
+		return conf.ClientCfg.Kafka[name].Writers[topic].Writer
+	}
+	// 如果没有连接
+	// 加锁防止重复建立连接
+	conf.ClientCfg.Kafka[name].Writers[topic].RwMutex.Lock()
+	defer conf.ClientCfg.Kafka[name].Writers[topic].RwMutex.Unlock()
+	if conf.ClientCfg.Kafka[name].Writers[topic].Writer == nil {
+		cmdkit.KafkaWriter(conf.ClientCfg.Kafka[name], topic)
+	}
+	return conf.ClientCfg.Kafka[name].Writers[topic].Writer
 }
 
 // GetReader 获取Kafka引擎
@@ -40,7 +50,7 @@ func GetReader(name string, models ...kafkakit.Model) *kafka.Reader {
 	for _, model := range models {
 		topics = append(topics, model.TopicName())
 	}
-	return cmdkit.KafkaReader(conf.ClientCfg.Kafka[name], topics...)
+	return cmdkit.KafkaReader(conf.ClientCfg.Kafka[name].KafkaCfg, topics...)
 }
 
 // CoreWriter 获取core的Kafka writer

@@ -8,10 +8,10 @@ import (
 )
 
 // GetConsumer 获取消费者
-func GetConsumer(ctx context.Context, client rabbitmqkit.Client, model rabbitmqkit.QueueModel,
+func GetConsumer(ctx context.Context, channel *amqp.Channel, model rabbitmqkit.QueueModel,
 	handle func(ctx context.Context, msg amqp.Delivery) error) rabbitmqkit.Consumer {
 	return rabbitmqkit.Consumer{
-		Client:    client,
+		Channel:   channel,
 		Handle:    handle,
 		RetryMax:  rabbitmqkit.DefaultRetryMax,
 		Queue:     model.QueueName(),

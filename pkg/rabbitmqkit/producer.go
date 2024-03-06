@@ -10,7 +10,7 @@ import (
 
 // Producer 生产者
 type Producer struct {
-	Client
+	Channel    *amqp.Channel
 	Exchange   string
 	RoutingKey string
 	Mandatory  bool
@@ -18,24 +18,10 @@ type Producer struct {
 	Ctx        context.Context
 }
 
-// Close 关闭生产者
-func (prd *Producer) Close() error {
-	err := prd.CloseCon()
-	if err != nil {
-		return err
-	}
-	return prd.CloseChannel()
-}
-
-// CloseCon 关闭连接
-func (prd *Producer) CloseCon() error {
-	return prd.Con.Close()
-}
-
-// CloseChannel 关闭通道
-func (prd *Producer) CloseChannel() error {
-	return prd.Channel.Close()
-}
+// Close 关闭生产者,生产者无需关闭
+//func (prd *Producer) Close() error {
+//	return prd.Channel.Close()
+//}
 
 // Push 推送消息
 func (prd *Producer) Push(msg amqp.Publishing) error {

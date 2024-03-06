@@ -62,7 +62,7 @@ func Done() <-chan struct{} {
 	return done
 }
 
-// SetWait 设置等待时间
+// SetWait 设置等待时间,需大于当前时间才能生效
 func SetWait(duration time.Duration) {
 	mutex.Lock()
 	defer mutex.Unlock()
