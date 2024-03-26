@@ -1,7 +1,7 @@
 package config
 
 type PkgCfg struct {
-	Jwt    JwtCfg    `json:"Jwt,optional""`
+	Jwt    JwtCfg    `json:"Jwt,optional"`
 	Sts    StsCfg    `json:"Sts,optional"`
 	WxWork WxWorkCfg `json:"WxWork,optional"`
 }

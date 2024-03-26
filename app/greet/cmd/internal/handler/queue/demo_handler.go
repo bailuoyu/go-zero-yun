@@ -23,7 +23,7 @@ func DemoProduceHandler(cmd *cobra.Command, args []string) {
 	producer := kafkalgc.GetProducer(cmd.Context(), writer)
 	//producer.Writer.Async = true
 	//producer.Writer.BatchTimeout = 10 * time.Millisecond
-	defer producer.Close()
+	//defer producer.Close()
 	for {
 		select {
 		case <-cmd.Context().Done():
