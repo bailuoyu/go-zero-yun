@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-// CliStart queue开始时执行
-func CliStart(cmd *cobra.Command, args []string) {
+// CmdStart queue开始时执行
+func CmdStart(cmd *cobra.Command, args []string) {
 	//设置trace
-	CliSetCtx(cmd)
+	CmdSetCtx(cmd)
 	//记录开始日志
 	logkit.WithType(logkit.LogRunStart).Infof(cmd.Context(), "args: %v", args)
 }
 
-// CliSetCtx 设置job的ctx
-func CliSetCtx(cmd *cobra.Command) context.Context {
+// CmdSetCtx 设置job的ctx
+func CmdSetCtx(cmd *cobra.Command) context.Context {
 	ctx := cmd.Context()
 	if ctx == nil {
 		ctx = context.Background()

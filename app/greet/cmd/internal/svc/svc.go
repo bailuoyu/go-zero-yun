@@ -11,5 +11,5 @@ import (
 func PreFun(cmd *cobra.Command, args []string) {
 	config.LoadCfgOnce()
 	cmdkit.InitConfOnce(false)
-	tracekit.CliStart(cmd, args)
+	tracekit.CmdStart(cmd, args)
 }
