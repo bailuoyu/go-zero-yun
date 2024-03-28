@@ -2,7 +2,6 @@ package logkit
 
 import (
 	"context"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-yun/pkg/funckit"
 	"time"
@@ -12,26 +11,26 @@ type (
 	LogField = logx.LogField
 )
 
-func WithCallerSkip(skip int) *logger {
-	return &logger{
+func WithCallerSkip(skip int) *Logger {
+	return &Logger{
 		skip: skip,
 	}
 }
 
-func WithType(ty string) *logger {
-	return &logger{
+func WithType(ty string) *Logger {
+	return &Logger{
 		ty: ty,
 	}
 }
 
-func WithDuration(d time.Duration) *logger {
-	return &logger{
+func WithDuration(d time.Duration) *Logger {
+	return &Logger{
 		runtime: funckit.DurToMic2(d),
 	}
 }
 
-func WithRuntime(runtime float64) *logger {
-	return &logger{
+func WithRuntime(runtime float64) *Logger {
+	return &Logger{
 		runtime: runtime,
 	}
 }
@@ -63,7 +62,7 @@ func Error(ctx context.Context, v ...interface{}) {
 
 // Errorf writes v with format into error log.
 func Errorf(ctx context.Context, format string, v ...interface{}) {
-	GetLogger(ctx).Errorf(fmt.Errorf(format, v...).Error())
+	GetLogger(ctx).Errorf(format, v...)
 }
 
 // Errorv writes v into error log with json content.
@@ -119,7 +118,7 @@ func Sloww(ctx context.Context, msg string, fields ...LogField) {
 
 // GetLogger returns the logx.Logger with the given ctx and correct caller.
 func GetLogger(ctx context.Context) logx.Logger {
-	lgr := &logger{
+	lgr := &Logger{
 		skip: 1,
 		ty:   LogDefault,
 	}
